@@ -1,0 +1,34 @@
+services:
+  server-sync:
+    build: ./server-sync
+    container_name: servidor-web-sync
+    networks:
+      redes:
+        ipv4_address: 46.10.0.2
+    ports:
+      - "8080:80"
+
+  server-async:
+    build: ./server-async
+    container_name: servidor-web-async
+    networks:
+      redes:
+        ipv4_address: 46.10.0.3
+    ports:
+      - "8000:80"
+
+  client:
+    build: ./client
+    container_name: cliente-web
+    depends_on:
+      - server
+    networks:
+      redes:
+        ipv4_address: 46.10.0.4
+
+networks:
+  redes:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 46.10.0.0/24
