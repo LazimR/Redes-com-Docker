@@ -1,6 +1,6 @@
 services:
   server-sync:
-    build: ./server-sync
+    build: ./server_sync
     container_name: servidor-web-sync
     networks:
       redes:
@@ -9,7 +9,7 @@ services:
       - "8080:80"
 
   server-async:
-    build: ./server-async
+    build: ./server_async
     container_name: servidor-web-async
     networks:
       redes:
@@ -21,7 +21,8 @@ services:
     build: ./client
     container_name: cliente-web
     depends_on:
-      - server
+      - server-sync
+      - server-async
     networks:
       redes:
         ipv4_address: 46.10.0.4
