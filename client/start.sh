@@ -1,0 +1,4 @@
+#!/bin/sh
+python3 client.py &
+
+python3 web_server.py

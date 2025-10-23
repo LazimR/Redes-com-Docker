@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Teste e Banco</title>
+  <style>
+    body { background: #111; color: #0f0; font-family: monospace; padding: 20px; }
+    input, button { margin: 5px; padding: 5px; }
+    pre { background: #000; padding: 10px; border-radius: 5px; margin-top: 15px; }
+  </style>
+</head>
+<body>
+  <h2>Adicionar Pessoa</h2>
+  <input type="text" id="name" placeholder="Nome">
+  <input type="number" id="age" placeholder="Idade">
+  <button id="run">Inserir + Testar</button>
+  <button id="list">Listar Pessoas</button>
+  <pre id="saida"></pre>
+
+  <script>
+    const out = document.getElementById("saida");
+
+    document.getElementById("run").onclick = async () => {
+      const name = document.getElementById("name").value.trim();
+      const age = parseInt(document.getElementById("age").value);
+      if (!name || isNaN(age)) {
+        out.textContent = "Nome e idade são obrigatórios!";
+        return;
+      }
+      out.textContent = "Executando...";
+      const res = await fetch("/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, age })
+      });
+      const data = await res.json();
+      // Salva pessoa no sessionStorage
+      let armazenadas = [];
+      try {
+        armazenadas = JSON.parse(sessionStorage.getItem('pessoas')) || [];
+      } catch {}
+      armazenadas.push({ name, age });
+      sessionStorage.setItem('pessoas', JSON.stringify(armazenadas));
+      out.textContent = `\nNome: ${name}\nIdade: ${age}\nSync: ${data.sync_avg?.toFixed(2)} ms\nAsync: ${data.async_avg?.toFixed(2)} ms\nMédia: ${data.media?.toFixed(2)} ms\n`;
+    };
+
+    document.getElementById("list").onclick = async () => {
+      out.textContent = "Buscando lista de pessoas...";
+      const res = await fetch("/people");
+      const data = await res.json();
+      // Recupera pessoas do sessionStorage
+      let armazenadas = [];
+      try {
+        armazenadas = JSON.parse(sessionStorage.getItem('pessoas')) || [];
+      } catch {}
+      // Concatena ambas as listas
+      const todas = Array.isArray(data) ? data.concat(armazenadas) : armazenadas;
+      out.textContent = JSON.stringify(todas, null, 2);
+    };
+  </script>
+</body>
+</html>

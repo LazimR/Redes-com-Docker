@@ -7,4 +7,4 @@ COPY . /app
 
 EXPOSE 80
 
-CMD ["python3", "server_sync.py"]
+CMD ["python3", "server_async.py"]
