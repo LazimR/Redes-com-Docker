@@ -75,26 +75,10 @@ class Client:
         self.log(f"Sync: {sync_avg:.2f} ms | Async: {async_avg:.2f} ms | Média: {media:.2f} ms")
         return {"sync_avg": sync_avg, "async_avg": async_avg, "media": media}
 
-def start_server():
+def main():
     client = Client("46.10.0.2", "46.10.0.3", port=80)
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
-        server.bind((HOST, PORT))
-        server.listen(5)
-        print(f"Cliente aguardando comandos em {HOST}:{PORT}")
-        while True:
-            conn, addr = server.accept()
-            with conn:
-                print(f"Conexão recebida de {addr}")
-                data = conn.recv(4096).decode()
-                try:
-                    cmd = json.loads(data)
-                    method = cmd.get("method", "GET").upper()
-                    payload = cmd.get("data", None)
-                    result = client.execute(method, payload)
-                    conn.sendall(json.dumps(result).encode())
-                except Exception as e:
-                    err = {"error": str(e)}
-                    conn.sendall(json.dumps(err).encode())
+    for _ in range(10):
+        client.execute(method="GET")  # ou "POST" se desejar, pode customizar
 
 if __name__ == "__main__":
-    start_server()
+    main()

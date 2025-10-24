@@ -5,7 +5,6 @@ import time
 from datetime import datetime
 import json as _json
 
-
 HOST="0.0.0.0"
 PORT=80
 LOG_FILE = "server_async_log.txt"
@@ -49,14 +48,6 @@ class server_async():
                         message = "OK"
                         body = "Welcome to Lazarus Server!"
                         content_type = "text/plain"
-                    case "/people":
-                        body = _json.dumps([
-                            {"name": "João", "age": 25},
-                            {"name": "Maria", "age": 30}
-                        ])
-                        content_type = "application/json"
-                        status_code = "200"
-                        message = "OK"
                     case _:
                         status_code = "404"
                         message = "Not Found"
