@@ -51,34 +51,42 @@ class Client:
             s.connect((server_ip, self.port))
             s.sendall(request.encode())
             response = s.recv(4096).decode(errors="ignore")
-        return response
+        headers, _, body = response.partition("\r\n\r\n")
+        status_line = headers.split("\r\n")[0] if "\r\n" in headers else headers.split("\n")[0]
+        try:
+            http_version, status_code, status_message = status_line.split(" ", 2)
+        except ValueError:
+            status_code = "???"
+            status_message = status_line
+        return status_code, status_message, body
 
     def run_test(self, server_ip: str, method="GET", data=None):
         tempos = []
         for _ in range(self.num_requests):
-            inicio = time.time()
+            
             try:
+                inicio = time.time()
                 req = self.build_request(method, "/", data)
-                _ = self.send_request(server_ip, req)
+                status_code, status_message, body = self.send_request(server_ip, req)
+                fim = time.time()
+                self.log(f"Servidor { "Sincrono" if (server_ip == "46.10.0.2") else "Assincrono" } | Resposta: Código {status_code} - {status_message} | Corpo: {body} | Tempo: {(fim - inicio) * 1000} ms")
+                tempos.append((fim - inicio) * 1000)
             except Exception as e:
                 self.log(f"Erro: {e}")
-                continue
-            fim = time.time()
-            tempos.append((fim - inicio) * 1000)
+                continue     
         return sum(tempos) / len(tempos) if tempos else 0
 
     def execute(self, method="GET", data=None):
         self.log(f"\n== Teste solicitado: {method} ==")
         sync_avg = self.run_test(self.server_sync_ip, method, data)
         async_avg = self.run_test(self.server_async_ip, method, data)
-        media = (sync_avg + async_avg) / 2
-        self.log(f"Sync: {sync_avg:.2f} ms | Async: {async_avg:.2f} ms | Média: {media:.2f} ms")
-        return {"sync_avg": sync_avg, "async_avg": async_avg, "media": media}
+        self.log(f"Sync: {sync_avg:.2f} ms | Async: {async_avg:.2f} ms")
+        return {"sync_avg": sync_avg, "async_avg": async_avg}
 
 def main():
     client = Client("46.10.0.2", "46.10.0.3", port=80)
-    for _ in range(10):
-        client.execute(method="GET")  # ou "POST" se desejar, pode customizar
+
+    client.execute(method="GET")  # ou "POST" se desejar, pode customizar
 
 if __name__ == "__main__":
     main()

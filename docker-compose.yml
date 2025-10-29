@@ -1,5 +1,4 @@
 services:
-    
   server-sync:
     build: ./server_sync
     container_name: servidor-web-sync
