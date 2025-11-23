@@ -1,10 +1,7 @@
-FROM ubuntu:latest
+FROM httpd:latest
 
-RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-pip iputils-ping net-tools && apt-get clean
+COPY apache.conf /usr/local/apache2/conf/httpd.conf
 
-WORKDIR /app
-COPY . /app
+COPY html/ /usr/local/apache2/htdocs/
 
 EXPOSE 80
-
-CMD ["python3", "server_async.py"]
