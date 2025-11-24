@@ -62,7 +62,7 @@ services:
         ipv4_address: 46.10.0.70
 
   apache-exporter:
-    image: lusitaniae/apache-exporter
+    image: lusotycoon/apache-exporter
     container_name: apache-exporter
     command:
       - "--scrape_uri=http://46.10.0.20/server-status?auto"
@@ -75,12 +75,10 @@ services:
         ipv4_address: 46.10.0.60
 
   k6:
-    image: grafana/k6
-    container_name: k6-loadtest
-    volumes:
-      - ./load-test:/scripts
-    entrypoint: ["/bin/sh", "-c"]
-    command: ["k6 run /scripts/scenario_small.js"]
+    build: ./k6
+    container_name: k6
+    entrypoint: ["/bin/sh"]
+    command: ["/scripts/loop_tests.sh"]
     networks:
       redes:
         ipv4_address: 46.10.0.80
